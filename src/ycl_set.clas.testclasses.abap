@@ -21,9 +21,10 @@ CLASS test IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD add_object_initial_A_to_set.
+    mo_cut->add_object( 'A' ).
     cl_abap_unit_assert=>assert_equals( msg = 'Should add object A'
                                         exp = abap_true
-                                        act = mo_cut->add_object( 'A' )
+                                        act = mo_cut->contain_object( 'A' )
                                       ).
 
   ENDMETHOD.
