@@ -28,7 +28,7 @@ CLASS ycl_set DEFINITION
              object TYPE i,
            END OF ts_index,
            tt_index TYPE STANDARD TABLE OF ts_set WITH EMPTY KEY.
-    DATA: mt_index TYPE tt_index,
+    DATA: mt_index            TYPE tt_index,
           mo_number_generator TYPE REF TO cl_abap_random_int.
 
     METHODS:
@@ -42,34 +42,35 @@ CLASS ycl_set DEFINITION
         RETURNING VALUE(rv_value) TYPE string,
       exists_object_in_set
         IMPORTING
-          iv_object        TYPE string
+                  iv_object        TYPE string
         RETURNING VALUE(rv_result) TYPE abap_bool,
       get_index_of_object_in_set
         IMPORTING
-          iv_object             TYPE string
+                  iv_object             TYPE string
         RETURNING VALUE(rv_table_index) TYPE i,
       delete_object_at_index_in_set
         IMPORTING
           iv_index TYPE i,
       shuffle_set
-        IMPORTING it_set TYPE tt_set
+        IMPORTING it_set        TYPE tt_set
         RETURNING VALUE(rt_set) TYPE tt_set,
-    get_object_at_index
-      IMPORTING
-        iv_index TYPE i
-      RETURNING VALUE(rv_object) TYPE string,
-     shuffle
+      get_object_at_index
+        IMPORTING
+                  iv_index         TYPE i
+        RETURNING VALUE(rv_object) TYPE string,
+      shuffle
+        IMPORTING it_set        TYPE tt_set
         RETURNING VALUE(rt_set) TYPE tt_set,
-     init_number_generator,
-     get_next_random_number
+      init_number_generator,
+      get_next_random_number
         RETURNING VALUE(rv_value) TYPE i,
-     is_object_not_in_set
-        IMPORTING iv_object TYPE string
-                  it_set    TYPE tt_set
+      is_object_not_in_set
+        IMPORTING iv_object       TYPE string
+                  it_set          TYPE tt_set
         RETURNING VALUE(rv_value) TYPE abap_bool,
-     append_object_to_set
-        IMPORTING iv_object TYPE string
-                  it_set    TYPE tt_set
+      append_object_to_set
+        IMPORTING iv_object     TYPE string
+                  it_set        TYPE tt_set
         RETURNING VALUE(rt_set) TYPE tt_set.
 
 ENDCLASS.
@@ -77,12 +78,12 @@ ENDCLASS.
 CLASS ycl_set IMPLEMENTATION.
 
   METHOD constructor.
-    mo_number_generator = cl_abap_random_int=>create( min = 1 max = lines( mt_set ) ).
+    mo_number_generator = cl_abap_random_int=>create( min = 1 max = 2 ).
   ENDMETHOD.
 
   METHOD add_object.
     IF object_not_exist_in_set( iv_object ).
-       add_object_to_set( iv_object ).
+      add_object_to_set( iv_object ).
     ENDIF.
   ENDMETHOD.
 
@@ -121,6 +122,7 @@ CLASS ycl_set IMPLEMENTATION.
 
   METHOD get_set.
     mt_set = shuffle_set( mt_set ).
+    rt_set = mt_set.
   ENDMETHOD.
 
   METHOD shuffle_set.
@@ -128,17 +130,18 @@ CLASS ycl_set IMPLEMENTATION.
     init_number_generator(  ).
 
     WHILE lines( mt_set ) <> lines( rt_set ).
-        rt_set = shuffle( ).
+      rt_set = shuffle( rt_set ).
     ENDWHILE.
 
   ENDMETHOD.
 
   METHOD shuffle.
-        DATA(lv_object) = get_object_at_index( get_next_random_number(  ) ).
+    rt_set = it_set.
+    DATA(lv_object) = get_object_at_index( get_next_random_number(  ) ).
 
-        IF is_object_not_in_set( iv_object = lv_object it_set = rt_set ).
-            rt_set = append_object_to_set( iv_object = lv_object it_set = rt_set ).
-        ENDIF.
+    IF is_object_not_in_set( iv_object = lv_object it_set = rt_set ).
+      rt_set = append_object_to_set( iv_object = lv_object it_set = rt_set ).
+    ENDIF.
   ENDMETHOD.
 
   METHOD get_object_at_index.
@@ -146,7 +149,7 @@ CLASS ycl_set IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD init_number_generator.
-     mo_number_generator = cl_abap_random_int=>create( min = 1 max = lines( mt_set ) ).
+    mo_number_generator = cl_abap_random_int=>create( min = 1 max = lines( mt_set ) ).
   ENDMETHOD.
 
   METHOD get_next_random_number.
@@ -158,8 +161,8 @@ CLASS ycl_set IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD append_object_to_set.
-      rt_set = it_set.
-      APPEND VALUE #( object = iv_object ) TO rt_set.
+    rt_set = it_set.
+    APPEND VALUE #( object = iv_object ) TO rt_set.
   ENDMETHOD.
 
 ENDCLASS.
